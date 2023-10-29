@@ -5,12 +5,14 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float horizontalInput;
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float jumpVelocity = 5f;
+    [SerializeField] private float speed = 50f;
+    [SerializeField] private float jumpVelocity = 10f;
+    [SerializeField] private float minGroundedDistance = 0.2f;
 
     [SerializeField] private Rigidbody rigidbodyComponent;
     [SerializeField] private bool isGrounded = false;
+    [SerializeField] private bool hasPearl;
+    [SerializeField] private Transform rayStartLocation;
 
     // Start is called before the first frame update
     void Start()
@@ -21,30 +23,44 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-
-        // Direction of movement based on input
-        Vector3 movement = new Vector3(horizontalInput, 0f, 0f);
-
-        // Apply force to the player's rigidbody
-        rigidbodyComponent.AddForce(movement * speed, ForceMode.Force);
+        //move right
+        if(Input.GetKey(KeyCode.D))
+        {
+            rigidbodyComponent.AddForce(Vector3.right * speed * Time.deltaTime);
+        }
+        //move left
+        if (Input.GetKey(KeyCode.A))
+        {
+            rigidbodyComponent.AddForce(Vector3.left * speed * Time.deltaTime);
+        }
         
-        // Jump with Space Key
+        // Sets grounded to false
+        isGrounded = false;
+
+        // Shoots a ray down and on collision, ouput raycast hit and returns true
+        if (Physics.Raycast(rayStartLocation.position, Vector3.down, out RaycastHit hit))
+        {
+          
+            if (hit.distance < minGroundedDistance)
+            {
+                isGrounded = true;
+            }
+
+        }
+
+        // Jump when grounded and Space Key pressed
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
         }
     }
 
-    // Detect collision with ground
-    void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        isGrounded = true;
-    }
-
-    // Detect collision exit with the ground
-    void OnCollisionExit(Collision collision)
-    {
-        isGrounded = false;
+        if (other.CompareTag("Pearl"))
+        {
+            hasPearl = true;
+            Destroy(other.gameObject);
+        }
     }
 }
