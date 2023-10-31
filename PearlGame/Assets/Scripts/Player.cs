@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class Player : MonoBehaviour
 {
@@ -11,8 +12,10 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Rigidbody rigidbodyComponent;
     [SerializeField] private bool isGrounded = false;
-    [SerializeField] private bool hasPearl;
+    
     [SerializeField] private Transform rayStartLocation;
+    
+
 
     // Start is called before the first frame update
     void Start()
@@ -53,14 +56,8 @@ public class Player : MonoBehaviour
         {
             rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
         }
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Pearl"))
-        {
-            hasPearl = true;
-            Destroy(other.gameObject);
-        }
+
     }
+   
 }

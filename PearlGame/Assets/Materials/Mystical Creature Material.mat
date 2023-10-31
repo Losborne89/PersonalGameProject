@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Level Material
+  m_Name: Mystical Creature Material
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -41,13 +41,13 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0.88, y: 0.24}
+        m_Texture: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 1.1, y: 3.93}
+        m_Offset: {x: 0.65, y: -0.03}
     - _MainTex:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0.88, y: 0.24}
+        m_Scale: {x: 1.1, y: 3.93}
+        m_Offset: {x: 0.65, y: -0.03}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -67,9 +67,9 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0
+    - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Metallic: 0
+    - _Metallic: 0.13
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -79,6 +79,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0, g: 0.049518272, b: 0.18867922, a: 1}
-    - _EmissionColor: {r: 0.036465272, g: 0.030776065, b: 0.066037714, a: 1}
+    - _Color: {r: 0.08474801, g: 0.048771787, b: 0.18867922, a: 1}
+    - _EmissionColor: {r: 0.17629932, g: 0.116500504, b: 0.8018868, a: 1}
   m_BuildTextureStacks: []
