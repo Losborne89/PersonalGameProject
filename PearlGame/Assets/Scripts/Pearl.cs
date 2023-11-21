@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.EditorTools;
 using UnityEngine;
 
 public class Pearl : MonoBehaviour
@@ -19,7 +18,7 @@ public class Pearl : MonoBehaviour
 
        if (playerInventory != null)
        {
-            // Shows Collects pearls 
+            // Shows collected pearls 
             playerInventory.PearlsCollected();
             // Pearls set to inactive once collected
             gameObject.SetActive(false);

@@ -13,9 +13,10 @@ public class InventoryUI : MonoBehaviour
        pearlText = GetComponent<TextMeshProUGUI>(); 
     }
 
-    // Text updated as pearls collected
+    
     public void UpdatePearlText(PlayerInventory playerInventory)
     {
+        // Text updated as pearls collected
         pearlText.text = playerInventory.numberOfPearls.ToString();
     }
     
