@@ -11,12 +11,19 @@ public class PlayerInventory : MonoBehaviour
 
     public FoodBarInteraction foodBarInteraction;
 
+    public InventoryUI inventoryUI;
+
     void Start()
     {
         // Insure reference is set
         if (foodBarInteraction == null)
         {
             Debug.LogError("FoodBarInteraction reference not set in PlayerInventory script ");
+        }
+
+        if (inventoryUI == null)
+        {
+            Debug.LogError("InventoryUI reference not set in PlayerInventory script");
         }
     }
 
@@ -29,6 +36,8 @@ public class PlayerInventory : MonoBehaviour
         if (foodBarInteraction != null)
         {
             foodBarInteraction.PearlsCollected();
+            // UI updated when pearls collected
+            inventoryUI.UpdatePearlText(this);
         }
     }
 
@@ -38,5 +47,7 @@ public class PlayerInventory : MonoBehaviour
         numberOfPearls -= count;
         // Pearl count doesnt go below zero
         numberOfPearls = Mathf.Max(0, numberOfPearls);
+        // UI updated when pearls used 
+        inventoryUI.DecreasePearlCount();
     }
 }

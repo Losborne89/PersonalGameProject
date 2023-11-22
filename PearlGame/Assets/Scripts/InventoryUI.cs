@@ -18,6 +18,17 @@ public class InventoryUI : MonoBehaviour
     {
         // Text updated as pearls collected
         pearlText.text = playerInventory.numberOfPearls.ToString();
+
+    }
+
+    public void DecreasePearlCount()
+    {
+        int currentPearlCount = int.Parse(pearlText.text);
+        if (currentPearlCount > 0)
+        {
+            currentPearlCount--;
+            pearlText.text = currentPearlCount.ToString();
+        }
     }
     
 }

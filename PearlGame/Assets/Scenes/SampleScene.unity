@@ -3154,6 +3154,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   foodBarInteraction: {fileID: 1675733491}
+  inventoryUI: {fileID: 713107761}
 --- !u!114 &1089329603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3170,6 +3171,7 @@ MonoBehaviour:
   playerProximityDistance: 4
   addPointsKey: 102
   maxPoints: 10
+  playerInventory: {fileID: 1089329602}
 --- !u!1001 &1132069342
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5291,6 +5293,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mystical Creature
       objectReference: {fileID: 0}
+    - target: {fileID: 6016099547329009248, guid: e02885044eafcba4ca1639a7e4b941e2, type: 3}
+      propertyPath: playerInventory
+      value: 
+      objectReference: {fileID: 1089329602}
     - target: {fileID: 7007087342572131187, guid: e02885044eafcba4ca1639a7e4b941e2, type: 3}
       propertyPath: m_Camera
       value: 

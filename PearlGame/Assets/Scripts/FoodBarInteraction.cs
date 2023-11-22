@@ -13,6 +13,8 @@ public class FoodBarInteraction : MonoBehaviour
     private int currentPoints = 0;
     private int numberOfPearls = 0;
 
+    public PlayerInventory playerInventory;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +39,8 @@ public class FoodBarInteraction : MonoBehaviour
 
                     // Decrease food count
                     numberOfPearls--;
+
+                    playerInventory.UsePearls(1);
                 }
             }
         }
