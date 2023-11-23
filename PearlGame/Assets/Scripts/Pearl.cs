@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Pearl : MonoBehaviour
 {
-   
 
     //Start is called before the first frame update
     void Start()
@@ -20,9 +19,10 @@ public class Pearl : MonoBehaviour
        {
             // Shows collected pearls 
             playerInventory.PearlsCollected();
+
             // Pearls set to inactive once collected
             gameObject.SetActive(false);
-       }
+        }
 
      
     }
