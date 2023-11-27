@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations;
 
 public class Player : MonoBehaviour
 {
@@ -12,15 +11,19 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Rigidbody rigidbodyComponent;
     [SerializeField] private bool isGrounded = false;
-    
-    [SerializeField] private Transform rayStartLocation;
-    
 
+    [SerializeField] private bool canDoubleJump = false;
+    [SerializeField] private FoodBarInteraction foodBarInteraction;
+
+    [SerializeField] private Transform rayStartLocation;
+
+    [SerializeField] private AudioSource audioSource2;
 
     // Start is called before the first frame update
     void Start()
     {
         rigidbodyComponent = GetComponent<Rigidbody>();
+
     }
 
     // Update is called once per frame
@@ -40,7 +43,7 @@ public class Player : MonoBehaviour
         // Sets grounded to false
         isGrounded = false;
 
-        // Shoots a ray down and on collision, ouput raycast hit and returns true
+        // Shoots a ray down and on collision, output raycast hit and returns true
         if (Physics.Raycast(rayStartLocation.position, Vector3.down, out RaycastHit hit))
         {
           
@@ -51,11 +54,38 @@ public class Player : MonoBehaviour
 
         }
 
-        // Jump when grounded and Space Key pressed
+        // Double Jump when grounded, Space Key pressed and slider value at full
+
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
+
             rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
+            audioSource2.Play();
+
+            // Double jump after regular jump
+            canDoubleJump = true;
+
+
         }
+        else
+        {
+            if (foodBarInteraction.GetSliderValue() == 10)
+            {
+                if (canDoubleJump && Input.GetKeyDown(KeyCode.Space))
+                {
+
+                    rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
+                    audioSource2.Play();
+
+                    // Stop Double jump until grounded
+                    canDoubleJump = false;
+
+                }
+            }
+        }
+
+        
+        
 
 
     }

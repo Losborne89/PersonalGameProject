@@ -109,4 +109,9 @@ public class FoodBarInteraction : MonoBehaviour
     {
         numberOfPearls++;
     }
+
+    public float GetSliderValue()
+    {
+        return progressBar.value;
+    }
 }

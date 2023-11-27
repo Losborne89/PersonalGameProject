@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,7 +9,7 @@ public class PlayerInventory : MonoBehaviour
 
     [SerializeField] public UnityEvent<PlayerInventory> OnPearlCollected;
 
-    [SerializeField] public AudioSource pearlCollectedSound;
+    [SerializeField] private AudioSource audioSource1;
 
     public FoodBarInteraction foodBarInteraction;
 
@@ -30,6 +29,8 @@ public class PlayerInventory : MonoBehaviour
             Debug.LogError("InventoryUI reference not set in PlayerInventory script");
         }
 
+        
+        
     }
 
     public void PearlsCollected()
@@ -44,11 +45,6 @@ public class PlayerInventory : MonoBehaviour
             // UI updated when pearls collected
             inventoryUI.UpdatePearlText(this);
 
-            // Remember to assign in inspector for player
-            if (pearlCollectedSound != null)
-            {
-                pearlCollectedSound.Play();
-            }
         }
     }
 
