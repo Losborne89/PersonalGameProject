@@ -37,11 +37,13 @@ public class GameManager : MonoBehaviour
         restartButton.gameObject.SetActive(true);
     }
 
+    // Reloads game when Restart button clicked
     public void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    // Shows game title and Explore button to start the game
     public void StartGame()
     {
         titleText.gameObject.SetActive(false);

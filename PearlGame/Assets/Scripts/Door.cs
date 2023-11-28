@@ -22,6 +22,7 @@ public class Door : MonoBehaviour
         
     }
 
+    // On player collision with door level complete shows and game stops
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
