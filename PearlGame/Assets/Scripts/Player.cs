@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private AudioSource audioSource2;
 
+    [SerializeField] public bool canMove = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,16 +31,20 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //move right
-        if(Input.GetKey(KeyCode.D))
+        if (canMove)
         {
-            rigidbodyComponent.AddForce(Vector3.right * speed * Time.deltaTime);
+            //move right
+            if (Input.GetKey(KeyCode.D))
+            {
+                rigidbodyComponent.AddForce(Vector3.right * speed * Time.deltaTime);
+            }
+            //move left
+            if (Input.GetKey(KeyCode.A))
+            {
+                rigidbodyComponent.AddForce(Vector3.left * speed * Time.deltaTime);
+            }
         }
-        //move left
-        if (Input.GetKey(KeyCode.A))
-        {
-            rigidbodyComponent.AddForce(Vector3.left * speed * Time.deltaTime);
-        }
+       
         
         // Sets grounded to false
         isGrounded = false;
@@ -56,7 +62,7 @@ public class Player : MonoBehaviour
 
         // Double Jump when grounded, Space Key pressed and slider value at full
 
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (canMove && isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
 
             rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
@@ -69,7 +75,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (foodBarInteraction.GetSliderValue() == 10)
+            if (canMove && foodBarInteraction.GetSliderValue() == 10)
             {
                 if (canDoubleJump && Input.GetKeyDown(KeyCode.Space))
                 {
@@ -84,10 +90,11 @@ public class Player : MonoBehaviour
             }
         }
 
-        
-        
-
-
     }
-   
+
+    public void StopMovement()
+    {
+        canMove = false;
+    }
+
 }
