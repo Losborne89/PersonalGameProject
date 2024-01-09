@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    private const int MaxHorizontalVelocity = 5;
     [SerializeField] private float speed = 50f;
     [SerializeField] private float jumpVelocity = 10f;
     [SerializeField] private float minGroundedDistance = 0.2f;
@@ -20,6 +21,10 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioSource audioSource2;
 
     [SerializeField] public bool canMove = true;
+    [SerializeField] public bool isMovingTooFast = true;
+
+    [SerializeField] private Animator animator;
+    [SerializeField] private bool isFacingRight = true;
 
     // Start is called before the first frame update
     void Start()
@@ -31,28 +36,63 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (canMove)
+        //limit velocity
+        CheckMoveSpeed();
+
+        if (canMove && isMovingTooFast == false)
         {
             //move right
             if (Input.GetKey(KeyCode.D))
             {
-                rigidbodyComponent.AddForce(Vector3.right * speed * Time.deltaTime);
+                Move(Vector3.right, true);
             }
             //move left
-            if (Input.GetKey(KeyCode.A))
+            else if (Input.GetKey(KeyCode.A))
             {
-                rigidbodyComponent.AddForce(Vector3.left * speed * Time.deltaTime);
+                Move(Vector3.left, false);
+            }
+            else
+            {
+                // Stop the run animation if not moving horizontally
+                animator.SetFloat("horizontal", 0f);
             }
         }
-       
-        
+
+        void Move(Vector3 direction, bool faceRight)
+        {
+            if (isFacingRight != faceRight)
+            {
+                // Flips player's scale to face the correct direction when moving
+                isFacingRight = faceRight;
+                Vector3 newScale = transform.localScale;
+                newScale.x *= -1;
+                transform.localScale = newScale;
+            }
+
+            if (isGrounded)
+            {
+                rigidbodyComponent.AddForce(direction * speed * Time.deltaTime);
+            }
+            else
+            {
+                rigidbodyComponent.AddForce((direction * speed * Time.deltaTime) / 2);
+            }
+
+            // Play's run animation
+            if (isGrounded && canDoubleJump)
+            {
+                animator.SetFloat("horizontal", Mathf.Abs(direction.x));
+            }
+        }
+
+
         // Sets grounded to false
         isGrounded = false;
 
         // Shoots a ray down and on collision, output raycast hit and returns true
         if (Physics.Raycast(rayStartLocation.position, Vector3.down, out RaycastHit hit))
         {
-          
+
             if (hit.distance < minGroundedDistance)
             {
                 isGrounded = true;
@@ -64,12 +104,13 @@ public class Player : MonoBehaviour
 
         if (canMove && isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-
-            rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
-            audioSource2.Play();
+            Jump();
 
             // Double jump after regular jump
             canDoubleJump = true;
+
+            // Stop run animation when double jumping 
+            animator.SetFloat("horizontal", 0f);
 
 
         }
@@ -80,8 +121,7 @@ public class Player : MonoBehaviour
                 if (canDoubleJump && Input.GetKeyDown(KeyCode.Space))
                 {
 
-                    rigidbodyComponent.velocity = Vector3.up * jumpVelocity;
-                    audioSource2.Play();
+                    Jump();
 
                     // Stop Double jump until grounded
                     canDoubleJump = false;
@@ -90,6 +130,35 @@ public class Player : MonoBehaviour
             }
         }
 
+    }
+
+    private void CheckMoveSpeed()
+    {
+        float absHorizontalVolcity = MathF.Abs(rigidbodyComponent.velocity.x);
+        if (absHorizontalVolcity > MaxHorizontalVelocity)
+        {
+            isMovingTooFast = true;
+        }
+        else
+        {
+            isMovingTooFast = false;
+        }
+    }
+
+    private void Jump()
+    {
+        rigidbodyComponent.velocity += Vector3.up * jumpVelocity;
+        audioSource2.Play();
+
+        if (isGrounded)
+        {
+            animator.SetTrigger("jump");
+        }
+        else
+        {
+            animator.ResetTrigger("jump");
+        }
+ 
     }
 
     public void StopMovement()
