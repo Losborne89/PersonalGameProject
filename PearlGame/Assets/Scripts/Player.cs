@@ -79,10 +79,8 @@ public class Player : MonoBehaviour
             }
 
             // Play's run animation
-            if (isGrounded && canDoubleJump)
-            {
-                animator.SetFloat("horizontal", Mathf.Abs(direction.x));
-            }
+            animator.SetFloat("horizontal", Mathf.Abs(direction.x));
+            
         }
 
 
@@ -108,9 +106,6 @@ public class Player : MonoBehaviour
 
             // Double jump after regular jump
             canDoubleJump = true;
-
-            // Stop run animation when double jumping 
-            animator.SetFloat("horizontal", 0f);
 
 
         }
