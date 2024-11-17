@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,7 +5,6 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-
     public TextMeshProUGUI levelCompleteText;
     public TextMeshProUGUI titleText;
 
@@ -16,8 +13,23 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private Player player;
 
+    private static GameManager instance;
 
-    // Start is called before the first frame update
+    void Awake()
+    {
+        // Singleton to ensure only one instance of GameManager
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject); // Instance across scenes
+        }
+        else
+        {
+            Destroy(gameObject); // Destroy duplicate
+            return; // Early exit if duplicate found
+        }
+    }
+
     void Start()
     {
         titleText.gameObject.SetActive(true);
@@ -25,10 +37,9 @@ public class GameManager : MonoBehaviour
         player.canMove = false;
     }
 
-    // Update is called once per frame
-    void Update()
+    public static GameManager GetInstance()
     {
-        
+        return instance;
     }
 
     public void LevelComplete()
@@ -51,4 +62,15 @@ public class GameManager : MonoBehaviour
         player.canMove = true;
     }
 
+    // Disable player movement
+    public void DisablePlayerMovement()
+    {
+        player.canMove = false;
+    }
+
+    // Enable player movement
+    public void EnablePlayerMovement()
+    {
+        player.canMove = true;
+    }
 }
