@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,25 @@ public class PlayerInventory : MonoBehaviour
 
     public InventoryUI inventoryUI;
 
+    public void OnEnable()
+    {
+        //register the event with + 
+        Pearl.OnPearlCollected += HandleOnPearlCollected;
+    }
+
+
+    public void OnDisable()
+    {
+        //Deregister the event with -
+        Pearl.OnPearlCollected -= HandleOnPearlCollected;
+    }
+    
+    private void HandleOnPearlCollected()
+    {
+        //do pearl collection
+        PearlsCollected();
+    }
+
     void Start()
     {
         // Insure reference is set
@@ -28,9 +48,6 @@ public class PlayerInventory : MonoBehaviour
         {
             Debug.LogError("InventoryUI reference not set in PlayerInventory script");
         }
-
-        
-        
     }
 
     public void PearlsCollected()
@@ -44,7 +61,6 @@ public class PlayerInventory : MonoBehaviour
             foodBarInteraction.PearlsCollected();
             // UI updated when pearls collected
             inventoryUI.UpdatePearlText(this);
-
         }
     }
 

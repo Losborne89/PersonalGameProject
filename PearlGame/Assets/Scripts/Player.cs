@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Presets;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -13,7 +14,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Rigidbody rigidbodyComponent;
     [SerializeField] private bool isGrounded = false;
 
-    [SerializeField] private bool canDoubleJump = false;
+    [SerializeField] private bool hasJumped = false;
     [SerializeField] private FoodBarInteraction foodBarInteraction;
 
     [SerializeField] private Transform rayStartLocation;
@@ -26,6 +27,88 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private bool isFacingRight = true;
 
+    public void OnEnable()
+    {
+        //register the event with + 
+        InputManager.OnMoveRight += HandleOnMoveRight;
+        InputManager.OnMoveLeft += HandleOnMoveLeft;
+        InputManager.OnJump += HandleOnJump;
+    }
+
+    public void OnDisable()
+    {
+        //Deregister the event with -
+        InputManager.OnMoveRight -= HandleOnMoveRight;
+        InputManager.OnMoveLeft -= HandleOnMoveLeft;
+        InputManager.OnJump -= HandleOnJump;
+    }
+
+    private void HandleOnMoveRight()
+    {
+        if (canMove == false)
+        {
+            return;
+        }
+
+        if (isMovingTooFast == false)
+        {
+            //move right
+            Move(Vector3.right, true);
+
+            //limit velocity
+            CheckMoveSpeed();
+
+        }
+    }
+
+    private void HandleOnMoveLeft()
+    {
+        if (canMove == false)
+        {
+            return;
+        }
+
+        if (isMovingTooFast == false)
+        {
+            //move left
+            Move(Vector3.left, false);
+
+            //limit velocity
+            CheckMoveSpeed();
+        }
+    }
+
+    private void HandleOnJump()
+    {
+        if(canMove == false)
+        {
+            return;
+        }
+        if (isGrounded)
+        {
+            Jump();
+
+            // Double jump after regular jump
+            hasJumped = true;
+        }
+        else
+        {
+            // Double Jump when grounded, Space Key pressed and slider value at full
+            if (foodBarInteraction.GetSliderValue() == 10)
+            {
+                if (hasJumped)
+                {
+
+                    Jump();
+
+                    // Stop Double jump until grounded
+                    hasJumped = false;
+
+                }
+            }
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,53 +119,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //limit velocity
-        CheckMoveSpeed();
-
-        if (canMove && isMovingTooFast == false)
-        {
-            //move right
-            if (Input.GetKey(KeyCode.D))
-            {
-                Move(Vector3.right, true);
-            }
-            //move left
-            else if (Input.GetKey(KeyCode.A))
-            {
-                Move(Vector3.left, false);
-            }
-            else
-            {
-                // Stop the run animation if not moving horizontally
-                animator.SetFloat("horizontal", 0f);
-            }
-        }
-
-        void Move(Vector3 direction, bool faceRight)
-        {
-            if (isFacingRight != faceRight)
-            {
-                // Flips player's scale to face the correct direction when moving
-                isFacingRight = faceRight;
-                Vector3 newScale = transform.localScale;
-                newScale.x *= -1;
-                transform.localScale = newScale;
-            }
-
-            if (isGrounded)
-            {
-                rigidbodyComponent.AddForce(direction * speed * Time.deltaTime);
-            }
-            else
-            {
-                rigidbodyComponent.AddForce((direction * speed * Time.deltaTime) / 2);
-            }
-
-            // Play's run animation
-            animator.SetFloat("horizontal", Mathf.Abs(direction.x));
-            
-        }
-
+        
 
         // Sets grounded to false
         isGrounded = false;
@@ -90,40 +127,35 @@ public class Player : MonoBehaviour
         // Shoots a ray down and on collision, output raycast hit and returns true
         if (Physics.Raycast(rayStartLocation.position, Vector3.down, out RaycastHit hit))
         {
-
             if (hit.distance < minGroundedDistance)
             {
                 isGrounded = true;
             }
+        } 
+    }
 
+    void Move(Vector3 direction, bool faceRight)
+    {
+        if (isFacingRight != faceRight)
+        {
+            // Flips player's scale to face the correct direction when moving
+            isFacingRight = faceRight;
+            Vector3 newScale = transform.localScale;
+            newScale.x *= -1;
+            transform.localScale = newScale;
         }
 
-        // Double Jump when grounded, Space Key pressed and slider value at full
-
-        if (canMove && isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (isGrounded)
         {
-            Jump();
-
-            // Double jump after regular jump
-            canDoubleJump = true;
-
-
+            rigidbodyComponent.AddForce(direction * speed * Time.deltaTime);
         }
         else
         {
-            if (canMove && foodBarInteraction.GetSliderValue() == 10)
-            {
-                if (canDoubleJump && Input.GetKeyDown(KeyCode.Space))
-                {
-
-                    Jump();
-
-                    // Stop Double jump until grounded
-                    canDoubleJump = false;
-
-                }
-            }
+            rigidbodyComponent.AddForce((direction * speed * Time.deltaTime) / 2);
         }
+
+        // Play's run animation
+        animator.SetFloat("horizontal", Mathf.Abs(direction.x));
 
     }
 

@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using Ink.Runtime;
 using UnityEngine.UI;
+using System;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -24,6 +25,62 @@ public class DialogueManager : MonoBehaviour
     public bool dialogueIsPlaying { get; private set; } // Read-only
 
     private int currentChoiceIndex = 0; // Track currently selected choice
+
+    public void OnEnable()
+    {
+        //register the event with + 
+        InputManager.OnConfirm += HandleOnConfirm;
+        InputManager.OnUp += HandleOnUp;
+        InputManager.OnDown += HandleOnDown;
+    }
+
+    public void OnDisable()
+    {
+        //register the event with -
+        InputManager.OnConfirm -= HandleOnConfirm;
+        InputManager.OnUp -= HandleOnUp;
+        InputManager.OnDown -= HandleOnDown;
+    }
+
+    private void HandleOnConfirm()
+    {
+        if (currentStory == null)
+        {
+            return;
+        }
+
+        // Check if choices available to navigate
+        if (currentStory.currentChoices.Count <= 0)
+        {
+            // Cycle through dialogue with Space key
+            ContinueStory();
+            return;
+
+        }
+
+        // Confirm choice with space key
+        ConfirmChoice();
+
+    }
+
+    // Navigate choices with arrow keys
+    private void HandleOnUp()
+    {
+        // short hand adding 1, currentChoiceIndex = currentChoiceIndex + 1;
+        currentChoiceIndex--;
+        currentChoiceIndex = CheckIndex(currentChoiceIndex);
+        HighlightChoice(currentChoiceIndex);
+    }
+
+    private void HandleOnDown()
+    {
+
+        // short hand subtracting 1, currentChoiceIndex = currentChoiceIndex - 1;
+        currentChoiceIndex++;
+        currentChoiceIndex = CheckIndex(currentChoiceIndex);
+        HighlightChoice(currentChoiceIndex);
+
+    }
 
     private void Start()
     {
@@ -47,39 +104,6 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        // Check if choices available to navigate
-        if (currentStory.currentChoices.Count > 0)
-        {
-            // Navigate choices with arrow keys
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                // short hand adding 1, currentChoiceIndex = currentChoiceIndex + 1;
-                currentChoiceIndex--;
-                currentChoiceIndex = CheckIndex(currentChoiceIndex);
-                HighlightChoice(currentChoiceIndex);
-            }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                // short hand subtracting 1, currentChoiceIndex = currentChoiceIndex - 1;
-                currentChoiceIndex++;
-                currentChoiceIndex = CheckIndex(currentChoiceIndex);
-                HighlightChoice(currentChoiceIndex);
-            }
-
-            // Confirm choice with space key
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                ConfirmChoice();
-            }
-        }
-        else
-        {
-            // Cycle through dialogue with Space key
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                ContinueStory();
-            }
-        }
     }
 
     private int CheckIndex(int newIndex)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DialogueTrigger : MonoBehaviour
@@ -9,31 +10,31 @@ public class DialogueTrigger : MonoBehaviour
 
     public DialogueManager dialogueManager;
 
-    private void Awake()
+    private void OnEnable()
     {
-        playerInRange = false;
-        visualCue.SetActive(false);
+        //register the event with + 
+        InputManager.OnOpenDialogue += HandleOpenDialogue;
     }
 
-    private void Update()
+    private void OnDisable()
+    {
+        //register the event with -
+        InputManager.OnOpenDialogue -= HandleOpenDialogue;
+    }
+
+    private void HandleOpenDialogue()
     {
         // If player is in range and dialogue is not playing 
         if (playerInRange && !dialogueManager.dialogueIsPlaying)
         {
-            visualCue.SetActive(true);
+            dialogueManager.StartDialogue();
+        }
+    }
 
-            // Check if interact key is pressed
-            if (Input.GetKeyDown(KeyCode.I))
-            {
-                dialogueManager.StartDialogue();
-            }
-        }
-        //not in range
-        else
-        {
-            // Hide visual cue when out of range or dialogue is playing
-            visualCue.SetActive(false);
-        }
+    private void Awake()
+    {
+        playerInRange = false;
+        visualCue.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -41,6 +42,7 @@ public class DialogueTrigger : MonoBehaviour
         if (collider.gameObject.CompareTag("Player"))
         {
             playerInRange = true;
+            visualCue.SetActive(true);
         }
     }
 
@@ -49,6 +51,7 @@ public class DialogueTrigger : MonoBehaviour
         if (collider.gameObject.CompareTag("Player"))
         {
             playerInRange = false;
+            visualCue.SetActive(false);
         }
     }
 }

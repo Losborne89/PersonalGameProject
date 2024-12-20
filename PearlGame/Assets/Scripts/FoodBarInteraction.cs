@@ -1,5 +1,5 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +10,7 @@ public class FoodBarInteraction : MonoBehaviour
     public AudioSource creatureEatingSound;
 
     public float maxInteractionDistance;
-    public KeyCode addPointsKey = KeyCode.F;
+    
     public int maxPoints = 10;
     public float particlePlayDuration = 1f;
 
@@ -20,6 +20,52 @@ public class FoodBarInteraction : MonoBehaviour
     public PlayerInventory playerInventory;
     public GameObject player;
     public GameObject creature;
+
+    public void OnEnable()
+    {
+        //register the event with + 
+        InputManager.OnFeed += HandleOnFeed;
+    }
+
+    public void OnDisable()
+    {
+        //register the event with - 
+        InputManager.OnFeed -= HandleOnFeed;
+    }
+
+    private void HandleOnFeed()
+    {
+        // Check if the player is close to the creature
+        if (Vector3.Distance(player.transform.position, creature.transform.position) < maxInteractionDistance)
+        {
+
+            // Check if there are enough food pearls in inventory
+            if (numberOfPearls > 0)
+            {
+                //Add points and update slider bar
+                if (AddPoints(1))
+                {
+                    // Decrease food count
+                    numberOfPearls--;
+
+                    // Play creature eating sound - remember to assign in inspector for creature
+                    if (creatureEatingSound != null)
+                    {
+                        creatureEatingSound.Play();
+                    }
+
+                    // Play particle system
+                    StartCoroutine(PlayParticlesAndStop());
+
+                    // Decreases pearls when used
+                    playerInventory.UsePearls(1);
+                }
+
+            }
+
+        }
+    }
+
 
     private void Awake()
     {
@@ -33,44 +79,6 @@ public class FoodBarInteraction : MonoBehaviour
         // Set the initial value of slider to 0
         progressBar.value = 0;
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // Check if the player is close to the creature
-        if (Vector3.Distance(player.transform.position, creature.transform.position) < maxInteractionDistance)
-        {
-            // Check if player presses key
-            if (Input.GetKeyDown(addPointsKey))
-            {
-                // Check if there are enough food pearls in inventory
-                if (numberOfPearls > 0)
-                {
-                    //Add points and update slider bar
-                    if (AddPoints(1))
-                    {
-                        // Decrease food count
-                        numberOfPearls--;
-
-                        // Play creature eating sound - remember to assign in inspector for creature
-                        if (creatureEatingSound != null)
-                        {
-                            creatureEatingSound.Play();
-                        }
-
-                        // Play particle system
-                        StartCoroutine(PlayParticlesAndStop());
-
-                        // Decreases pearls when used
-                        playerInventory.UsePearls(1);
-                    }
-
-                }
-            }
-
-        }
-       
     }
 
     // Return a bool indicating if points were added
