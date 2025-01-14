@@ -3,7 +3,6 @@ using UnityEngine;
 using TMPro;
 using Ink.Runtime;
 using UnityEngine.UI;
-using System;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -66,14 +65,24 @@ public class DialogueManager : MonoBehaviour
     // Navigate choices with arrow keys
     private void HandleOnUp()
     {
+        if (currentStory == null)
+        {
+            return;
+        }
+
         // short hand adding 1, currentChoiceIndex = currentChoiceIndex + 1;
         currentChoiceIndex--;
         currentChoiceIndex = CheckIndex(currentChoiceIndex);
         HighlightChoice(currentChoiceIndex);
+
     }
 
     private void HandleOnDown()
     {
+        if (currentStory == null)
+        {
+            return;
+        }
 
         // short hand subtracting 1, currentChoiceIndex = currentChoiceIndex - 1;
         currentChoiceIndex++;

@@ -1,31 +1,38 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Presets;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private const int MaxHorizontalVelocity = 5;
-    [SerializeField] private float speed = 50f;
-    [SerializeField] private float jumpVelocity = 10f;
-    [SerializeField] private float minGroundedDistance = 0.2f;
+    float speed = 500f;
+    float jumpHeight = 10f;
+    float wallBounceForce = 2f;
+    float wallNormalValue = 0.2f;
 
-    [SerializeField] private Rigidbody rigidbodyComponent;
-    [SerializeField] private bool isGrounded = false;
+    public enum PlayerState
+    {
+        NULL,
+        GROUNDED_IDLE,
+        GROUNDED_RUNNING,
+        INAIR,
+        DOUBLE_JUMP,
+    }
 
-    [SerializeField] private bool hasJumped = false;
-    [SerializeField] private FoodBarInteraction foodBarInteraction;
+    public PlayerState currentState = PlayerState.NULL;
 
-    [SerializeField] private Transform rayStartLocation;
+    public Rigidbody playerRB;
 
-    [SerializeField] private AudioSource audioSource2;
+    public Animator playerAnimator;
 
-    [SerializeField] public bool canMove = true;
-    [SerializeField] public bool isMovingTooFast = true;
+    public bool CanDoubleJump = false;
 
-    [SerializeField] private Animator animator;
-    [SerializeField] private bool isFacingRight = true;
+    public AudioSource audioSource;
+
+    bool isMoving = false;
+
+    bool isLeftPressed = false;
+    bool isRightPressed = false;    
+    bool isJumpPressed = false;
+
+
 
     public void OnEnable()
     {
@@ -45,152 +52,191 @@ public class Player : MonoBehaviour
 
     private void HandleOnMoveRight()
     {
-        if (canMove == false)
-        {
-            return;
-        }
-
-        if (isMovingTooFast == false)
-        {
-            //move right
-            Move(Vector3.right, true);
-
-            //limit velocity
-            CheckMoveSpeed();
-
-        }
+       isRightPressed = true;
     }
 
     private void HandleOnMoveLeft()
     {
-        if (canMove == false)
-        {
-            return;
-        }
-
-        if (isMovingTooFast == false)
-        {
-            //move left
-            Move(Vector3.left, false);
-
-            //limit velocity
-            CheckMoveSpeed();
-        }
+        isLeftPressed = true;
     }
 
     private void HandleOnJump()
     {
-        if(canMove == false)
-        {
-            return;
-        }
-        if (isGrounded)
-        {
-            Jump();
-
-            // Double jump after regular jump
-            hasJumped = true;
-        }
-        else
-        {
-            // Double Jump when grounded, Space Key pressed and slider value at full
-            if (foodBarInteraction.GetSliderValue() == 10)
-            {
-                if (hasJumped)
-                {
-
-                    Jump();
-
-                    // Stop Double jump until grounded
-                    hasJumped = false;
-
-                }
-            }
-        }
+        isJumpPressed = true;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    // sets the player state based on the new state and updates animations
+    public void SetState(PlayerState newState)
     {
-        rigidbodyComponent = GetComponent<Rigidbody>();
+        if (currentState == newState)
+        {
+            //do nothing if the state is the same
+            return;
+        }
+
+        currentState = newState;
+        switch (currentState)
+        {
+            case PlayerState.GROUNDED_IDLE:
+                playerAnimator.SetBool("IsMoving", isMoving);
+                playerAnimator.SetBool("IsGrounded", true);
+                break;
+            case PlayerState.GROUNDED_RUNNING:
+                playerAnimator.SetBool("IsMoving", isMoving);
+                playerAnimator.SetBool("IsGrounded", true);
+                break;
+            case PlayerState.INAIR:
+                playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("IsMoving", isMoving);
+                playerAnimator.SetBool("IsGrounded", false);
+                break;
+            case PlayerState.DOUBLE_JUMP:
+                playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("IsMoving", isMoving);
+                playerAnimator.SetBool("IsGrounded", false);
+                break;
+        }
 
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
-
-        // Sets grounded to false
-        isGrounded = false;
-
-        // Shoots a ray down and on collision, output raycast hit and returns true
-        if (Physics.Raycast(rayStartLocation.position, Vector3.down, out RaycastHit hit))
+        if (GameManager.canMove == false)
         {
-            if (hit.distance < minGroundedDistance)
+            return;
+        }
+
+        isMoving = false;
+
+        if (isRightPressed)
+        {
+            isMoving = true;
+            // flip the plater based on the direction
+            this.transform.localEulerAngles = new Vector3(0, 0, 0);
+
+            // in the air dont update the state and move at half speed
+            if (currentState is PlayerState.INAIR or PlayerState.DOUBLE_JUMP)
             {
-                isGrounded = true;
+                playerRB.AddForce(Vector3.right * speed / 2 * Time.fixedDeltaTime);
             }
-        } 
+            else
+            {
+                // when on the ground update the state and move at full speed
+                SetState(PlayerState.GROUNDED_RUNNING);
+                playerRB.AddForce(Vector3.right * speed * Time.fixedDeltaTime);
+            }
+        }
+
+        if (isLeftPressed)
+        {
+            isMoving = true;
+            //flip the plater based on the direction
+            this.transform.localEulerAngles = new Vector3(0, 180, 0);
+
+            //in the air dont update the state and move at half speed
+            if (currentState is PlayerState.INAIR or PlayerState.DOUBLE_JUMP)
+            {
+                playerRB.AddForce(Vector3.left * speed / 2 * Time.fixedDeltaTime);
+            }
+            else
+            {
+                //when on the ground update the state and move at full speed
+                SetState(PlayerState.GROUNDED_RUNNING);
+                playerRB.AddForce(Vector3.left * speed * Time.fixedDeltaTime);
+            }
+        }
+
+        if (currentState == PlayerState.DOUBLE_JUMP)
+        {
+            DoubleJumpingUpdate();
+        }
+
+        if (currentState == PlayerState.INAIR)
+        {
+            JumpingUpdate();
+        }
+
+        if (currentState is PlayerState.GROUNDED_IDLE or PlayerState.GROUNDED_RUNNING)
+        {
+            GroundedUpdate();
+        }
+
+        if (isMoving == false && currentState == PlayerState.GROUNDED_RUNNING)
+        {
+            SetState(PlayerState.GROUNDED_IDLE);
+        }
+
+        // reset the pressed keys
+        isLeftPressed = false;
+        isRightPressed = false;
+        isJumpPressed = false;
+
     }
 
-    void Move(Vector3 direction, bool faceRight)
+    //if the player collides with the ground update the state to grounded idle
+    public void OnCollisionEnter(Collision collision)
     {
-        if (isFacingRight != faceRight)
+        //check the collision tag if it is ground
+        if (collision.gameObject.tag == "Ground")
         {
-            // Flips player's scale to face the correct direction when moving
-            isFacingRight = faceRight;
-            Vector3 newScale = transform.localScale;
-            newScale.x *= -1;
-            transform.localScale = newScale;
-        }
+            Vector3 Normal = Vector3.zero;
 
-        if (isGrounded)
-        {
-            rigidbodyComponent.AddForce(direction * speed * Time.deltaTime);
-        }
-        else
-        {
-            rigidbodyComponent.AddForce((direction * speed * Time.deltaTime) / 2);
-        }
+            Normal = collision.contacts[0].normal;
 
-        // Play's run animation
-        animator.SetFloat("horizontal", Mathf.Abs(direction.x));
-
+            float normaldDot = Vector3.Dot(Normal, Vector3.up);
+            // check the normal angle with the collision based on the dot product if grater that o.2 then the player is grounded
+            if (normaldDot > wallNormalValue)
+            {
+                SetState(PlayerState.GROUNDED_IDLE);
+            }
+            else
+            {
+                //move away from collision if the player hits a wall
+                playerRB.velocity = Normal * wallBounceForce;
+            }
+        }
     }
 
-    private void CheckMoveSpeed()
+    // if jump is pressed update the sate to in air
+    public void GroundedUpdate()
     {
-        float absHorizontalVolcity = MathF.Abs(rigidbodyComponent.velocity.x);
-        if (absHorizontalVolcity > MaxHorizontalVelocity)
+        if (Jump())
         {
-            isMovingTooFast = true;
-        }
-        else
-        {
-            isMovingTooFast = false;
+            SetState(PlayerState.INAIR);
         }
     }
 
-    private void Jump()
+    // checks if the player can jump and jumps
+    private bool Jump()
     {
-        rigidbodyComponent.velocity += Vector3.up * jumpVelocity;
-        audioSource2.Play();
-
-        if (isGrounded)
+        // if jump is pressed, jump
+        if (isJumpPressed)
         {
-            animator.SetTrigger("jump");
+            audioSource.Play();
+            playerRB.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
+            isJumpPressed = false;
+            return true;
         }
-        else
-        {
-            animator.ResetTrigger("jump");
-        }
- 
+        return false;
     }
 
-    public void StopMovement()
+    // update while jumping
+    public void JumpingUpdate()
     {
-        canMove = false;
+        // if the player can double jump and the jump button is pressed  
+        if (CanDoubleJump)
+        {
+            if (Jump())
+            {
+                SetState(PlayerState.DOUBLE_JUMP);
+            }
+        }
     }
 
+    // placeholder update while double jumping
+    public void DoubleJumpingUpdate()
+    {
+
+    }
 }

@@ -18,7 +18,7 @@ public class FoodBarInteraction : MonoBehaviour
     private int numberOfPearls = 0;
 
     public PlayerInventory playerInventory;
-    public GameObject player;
+    public Player player;
     public GameObject creature;
 
     public void OnEnable()
@@ -38,7 +38,6 @@ public class FoodBarInteraction : MonoBehaviour
         // Check if the player is close to the creature
         if (Vector3.Distance(player.transform.position, creature.transform.position) < maxInteractionDistance)
         {
-
             // Check if there are enough food pearls in inventory
             if (numberOfPearls > 0)
             {
@@ -70,7 +69,6 @@ public class FoodBarInteraction : MonoBehaviour
     private void Awake()
     {
         particleSys = GameObject.Find("Food Bar Particles").GetComponent<ParticleSystem>();
-        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     // Start is called before the first frame update
@@ -85,10 +83,14 @@ public class FoodBarInteraction : MonoBehaviour
     bool AddPoints(int pointsToAdd)
     {
         // Check if adding points will be greater than the maximum
-        if (currentPoints + pointsToAdd <= maxPoints) 
+        if (currentPoints + pointsToAdd <= maxPoints)
         {
-
             currentPoints += pointsToAdd;
+
+            if (currentPoints == maxPoints)
+            {
+                player.CanDoubleJump = true;    
+            }
 
             // Update slider bar value based on current points
             progressBar.value = currentPoints;
@@ -96,7 +98,7 @@ public class FoodBarInteraction : MonoBehaviour
             // Points added
             return true;
         }
-        
+
         // Points not added
         return false;
 

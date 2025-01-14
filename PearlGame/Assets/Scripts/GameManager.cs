@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
 
     private static GameManager instance;
 
+    public static bool canMove;
+
     void Awake()
     {
         // Singleton to ensure only one instance of GameManager
@@ -34,7 +36,7 @@ public class GameManager : MonoBehaviour
     {
         titleText.gameObject.SetActive(true);
         exploreButton.gameObject.SetActive(true);
-        player.canMove = false;
+        canMove = false;
     }
 
     public static GameManager GetInstance()
@@ -59,18 +61,18 @@ public class GameManager : MonoBehaviour
     {
         titleText.gameObject.SetActive(false);
         exploreButton.gameObject.SetActive(false);
-        player.canMove = true;
+        canMove = true;
     }
 
     // Disable player movement
     public void DisablePlayerMovement()
     {
-        player.canMove = false;
+        canMove = false;
     }
 
     // Enable player movement
     public void EnablePlayerMovement()
     {
-        player.canMove = true;
+        canMove = true;
     }
 }

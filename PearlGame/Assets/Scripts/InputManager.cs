@@ -30,7 +30,6 @@ public class InputManager : MonoBehaviour
             OnMoveRight?.Invoke();
         }
 
-
         if (Input.GetKeyDown(KeyCode.Space))
         {
             OnJump?.Invoke();

@@ -29,7 +29,7 @@ public class Door : MonoBehaviour
         {
             gameManager.LevelComplete();
 
-            player.StopMovement();
+            GameManager.canMove = false;
 
         }
 
